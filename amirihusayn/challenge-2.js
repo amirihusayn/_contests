@@ -1,16 +1,22 @@
 let dataset = [];
 let searchIndex = 0;
-let result = "";
+let result = [];
+let messageCount;
+let commandCount = 0;
 
-function perform(input) {
-    const commandStirng = input.split('\n');
-    commandStirng.forEach( command => {
-        let anchor =  command.split(' ')[0];
+function perform(command) {
+    messageCount = 0;
+    commandCount++;
+    if(commandCount <= 100000)
+    {
+        const anchor =  command.split(' ')[0];
         if(anchor == "Add")
             add(command);
         if (anchor == "Find")
             find(command);
-    }); 
+    }
+    else
+        process.exit(0);
 }
 
 function add(command) {
@@ -18,7 +24,8 @@ function add(command) {
     const id = command.split(' ')[idIndex];
     const newUser = command.replace("Add ", "");
     dataset.push(newUser);
-    result += "User " + id + " added successfully\n";
+    result.push("User " + id + " added successfully");
+    messageCount++;
 }
 
 function find(command) {
@@ -29,7 +36,8 @@ function find(command) {
     dataset.forEach((user, id) => {
         id = user.split(' ')[idIndex];
         if(id == targetUserId) {
-            result += "" + searchIndex + user + "\n";
+            result.push("" + searchIndex + user);
+            messageCount++;
             found = true;
         }
     });
@@ -40,15 +48,31 @@ function find(command) {
             idArray.push(user.split(' ')[idIndex]);
         });
         for (let index = 0; index < idArray.length; index++) {
-            if(idArray[index].startsWith(targetUserId)) {
-                result += "" + searchIndex + " " + dataset[index] + "\n";
+            if(idArray[index].startsWith(targetUserId) && messageCount <= 10) {
+                result.push("" + searchIndex + " " + dataset[index]);
+                messageCount++;
                 found = true;
             }
         }
     }
 
     if(!found) {
-        result += "" + searchIndex + " No user found" + "\n";
+        messageCount++;
+        result.push("" + searchIndex + " No user found");
+    }
+    else
+    {
+        if(messageCount > 0) {
+            const sorted = result.slice(result.length - messageCount, result.length);
+            sorted.sort();
+            for (let index = 0; index < messageCount; index++) {
+                result.pop();
+            }
+            sorted.reverse();
+            for (let index = 0; index < messageCount; index++) {
+                result.push(sorted[index]);
+            }
+        }
     }
 }
 
@@ -59,7 +83,9 @@ const readline = require('readline').createInterface({
 
 readline.on( 'line', input => {
     perform(input);
-    console.log(result);
+    for (let index = 0; index < messageCount; index++)
+        console.log(result[result.length - index - 1]);
+    result = [];
 });
 
 readline.on( 'close', () => {
