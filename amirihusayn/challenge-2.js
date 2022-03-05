@@ -52,18 +52,19 @@ function find(command) {
     }
 }
 
-let input = `Add Ali male 20 ali20ali
-Add Mohammad male 21 mohammadm
-Add Akbar male 30 akbar30
-Find ali
-Add Maryam female 20 maryam20
-Find mohammad21
-Add Mahtab female 13 mahtab13
-Add Maziar male 40 maziarAk
-Find ma`;
+const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
-perform(input);
-console.log(result);
+readline.on( 'line', input => {
+    perform(input);
+    console.log(result);
+});
+
+readline.on( 'close', () => {
+    process.exit(0);
+});
 
 // Inputs
 // Add Ali male 20 ali20ali
